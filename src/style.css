@@ -30,7 +30,7 @@ body{
     border: 2px solid var(--empty);
     margin: 4px;
     color: white;
-    text-transform: uppercase;
+    text-transform: lowercase;
     display:grid;
     place-items: center;
     font-family: Arial, Helvetica, sans-serif;
@@ -52,6 +52,9 @@ body{
 .animated {
     animation: flip 0.5s ease;
 }
+.popAnimated {
+    animation: pop 0.2s ease;
+}
 
 @keyframes flip {
     0% {
@@ -62,5 +65,11 @@ body{
     }
     100% {
       transform: scaleY(1);
+    }
+  }
+
+@keyframes pop {
+    50% {
+      transform: scale(1.1);
     }
   }

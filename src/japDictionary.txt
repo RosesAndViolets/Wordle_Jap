@@ -1,7 +1,4 @@
-export const testDictionary = ['やわらかい', 'すばらしい', 'くちおしい'];
-
-export const realDictionary = [
-  "じょうほう",
+"じょうほう",
 "けんきゅう",
 "きょういく",
 "しょうかい",
@@ -5012,4 +5009,3 @@ export const realDictionary = [
 "ゆうしゅう",
 "さかうらみ",
 "くいーんず"
-];
