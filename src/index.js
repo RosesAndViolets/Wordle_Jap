@@ -2,7 +2,7 @@ import { testDictionary, realDictionary } from "./dictionary.js";
 // import * as wanakana from 'wanakana';
 
 // testing
-console.log('real dictionary:', realDictionary);
+// console.log('real dictionary:', realDictionary);
 const dictionary = realDictionary;
 const state = {
   secret: dictionary[Math.floor(Math.random() * dictionary.length)],
@@ -46,7 +46,7 @@ function registerKeyboardEvents(){
     document.body.onkeydown = (e) => {
         
         const key = e.key;
-        console.log(key);
+        // console.log(key);
 
         if (key === 'Enter') {
             if (state.currentCol === 5){
@@ -219,7 +219,7 @@ function startup() {
 
     registerKeyboardEvents();
 
-    console.log(state.secret);
+    // console.log(state.secret);
 }
 
 startup();
