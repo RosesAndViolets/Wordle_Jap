@@ -1,5 +1,6 @@
 export const testDictionary = ["やわらかい", "すばらしい", "くちおしい"];
 
+// 一般名詞 from jamdic
 export const realDictionary = [
   "どうじょう",
   "かんすうじ",
