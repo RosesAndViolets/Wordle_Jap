@@ -43,6 +43,54 @@ function drawGrid(container) {
   }
   container.appendChild(grid);
 }
+function drawKeyboard() {
+  const keyboard = document.createElement("div");
+  keyboard.className = "keyboard";
+
+  const keys = [
+    ["あ", "い", "う", "え", "お"],
+    ["か", "き", "く", "け", "こ"],
+    ["さ", "し", "す", "せ", "そ"],
+    ["た", "ち", "つ", "て", "と"],
+    ["な", "に", "ぬ", "ね", "の"],
+    ["は", "ひ", "ふ", "へ", "ほ"],
+    ["ま", "み", "む", "め", "も"],
+    ["や", "ゆ", "よ"],
+    ["ら", "り", "る", "れ", "ろ"],
+    ["わ", "を", "ん", "ー"],
+    ["っ", "ゃ", "ゅ", "ょ"],
+  ];
+  for (let i = 0; i < keyboard.length; i++) {
+    let currRow = keyboard[i];
+    let keyboardRow = document.createElement("div");
+    keyboardRow.classList.add("keyboard-row");
+
+    for (let j = 0; j < currRow.length; j++) {
+      let keyTile = document.createElement("div");
+
+      let key = currRow[j];
+      keyTile.innerText = key;
+      if (key == "Enter") {
+        keyTile.id = "Enter";
+      } else if (key == "⌫") {
+        keyTile.id = "Backspace";
+      } else if ("A" <= key && key <= "Z") {
+        keyTile.id = "Key" + key; // "Key" + "A";
+      }
+
+      keyTile.addEventListener("click", processKey);
+
+      if (key == "Enter") {
+        keyTile.classList.add("enter-key-tile");
+      } else {
+        keyTile.classList.add("key-tile");
+      }
+      keyboardRow.appendChild(keyTile);
+    }
+    document.body.appendChild(keyboardRow);
+  }
+}
+
 function registerKeyboardEvents() {
   document.body.onkeydown = (e) => {
     const key = e.key;
@@ -223,6 +271,7 @@ function removeLetter() {
 function startup() {
   const game = document.getElementById("game");
   drawGrid(game);
+  drawKeyboard();
 
   registerKeyboardEvents();
 
