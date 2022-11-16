@@ -3,15 +3,77 @@ import { testDictionary, realDictionary } from "./dictionary.js";
 
 // testing
 // console.log('real dictionary:', realDictionary);
+const attemptNum = 7;
 const dictionary = realDictionary;
 const state = {
   secret: dictionary[Math.floor(Math.random() * dictionary.length)],
-  grid: Array(6)
+  grid: Array(attemptNum)
     .fill()
     .map(() => Array(5).fill("")),
   currentRow: 0,
   currentCol: 0,
 };
+const dakuonMap = new Map([
+  ["か", "が"],
+  ["き", "ぎ"],
+  ["く", "ぐ"],
+  ["け", "げ"],
+  ["こ", "ご"],
+  ["さ", "ざ"],
+  ["し", "じ"],
+  ["す", "ず"],
+  ["せ", "ぜ"],
+  ["そ", "ぞ"],
+  ["た", "だ"],
+  ["ち", "ぢ"],
+  ["つ", "づ"],
+  ["て", "で"],
+  ["と", "ど"],
+  ["は", "ば"],
+  ["ひ", "び"],
+  ["ふ", "ぶ"],
+  ["へ", "べ"],
+  ["ほ", "ぼ"],
+]);
+
+const handakuonMap = new Map([
+  ["は", "ぱ"],
+  ["ひ", "ぴ"],
+  ["ふ", "ぷ"],
+  ["へ", "ぺ"],
+  ["ほ", "ぽ"],
+]);
+
+const zendakuon = [
+  ["か", "が"],
+  ["き", "ぎ"],
+  ["く", "ぐ"],
+  ["け", "げ"],
+  ["こ", "ご"],
+  ["さ", "ざ"],
+  ["し", "じ"],
+  ["す", "ず"],
+  ["せ", "ぜ"],
+  ["そ", "ぞ"],
+  ["た", "だ"],
+  ["ち", "ぢ"],
+  ["つ", "づ"],
+  ["て", "で"],
+  ["と", "ど"],
+  ["は", "ば", "ぱ"],
+  ["ひ", "び", "ぴ"],
+  ["ふ", "ぶ", "ぷ"],
+  ["へ", "べ", "ぺ"],
+  ["ほ", "ぼ", "ぽ"],
+];
+
+const keyboard = [
+  ["あ", "か", "さ", "た", "な", "は", "ま", "や", "ら", "わ", "ゃ"],
+  ["い", "き", "し", "ち", "に", "ひ", "み", "ゆ", "り", "を", "ゅ"],
+  ["う", "く", "す", "つ", "ぬ", "ふ", "む", "よ", "る", "ん", "ょ"],
+  ["え", "け", "せ", "て", "ね", "へ", "め", "っ", "れ", "゛", "⏎"],
+  ["お", "こ", "そ", "と", "の", "ほ", "も", "ー", "ろ", "゜", "⌫"],
+];
 
 function updateGrid() {
   for (let i = 0; i < state.grid.length; i++) {
@@ -36,7 +98,7 @@ function drawGrid(container) {
   const grid = document.createElement("div");
   grid.className = "grid";
 
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < attemptNum; i++) {
     for (let j = 0; j < 5; j++) {
       drawBox(grid, i, j);
     }
@@ -44,51 +106,64 @@ function drawGrid(container) {
   container.appendChild(grid);
 }
 function drawKeyboard() {
-  const keyboard = document.createElement("div");
-  keyboard.className = "keyboard";
-
-  const keys = [
-    ["あ", "い", "う", "え", "お"],
-    ["か", "き", "く", "け", "こ"],
-    ["さ", "し", "す", "せ", "そ"],
-    ["た", "ち", "つ", "て", "と"],
-    ["な", "に", "ぬ", "ね", "の"],
-    ["は", "ひ", "ふ", "へ", "ほ"],
-    ["ま", "み", "む", "め", "も"],
-    ["や", "ゆ", "よ"],
-    ["ら", "り", "る", "れ", "ろ"],
-    ["わ", "を", "ん", "ー"],
-    ["っ", "ゃ", "ゅ", "ょ"],
-  ];
   for (let i = 0; i < keyboard.length; i++) {
-    let currRow = keyboard[i];
+    let currkeyboardRow = keyboard[i];
     let keyboardRow = document.createElement("div");
     keyboardRow.classList.add("keyboard-row");
 
-    for (let j = 0; j < currRow.length; j++) {
+    for (let j = 0; j < currkeyboardRow.length; j++) {
       let keyTile = document.createElement("div");
 
-      let key = currRow[j];
+      let key = currkeyboardRow[j];
       keyTile.innerText = key;
       if (key == "Enter") {
         keyTile.id = "Enter";
-      } else if (key == "⌫") {
+      } else if (key == "Backspace") {
         keyTile.id = "Backspace";
-      } else if ("A" <= key && key <= "Z") {
-        keyTile.id = "Key" + key; // "Key" + "A";
+      } else if (isLetterOnKeyboard(key)) {
+        // console.log(keyTile.id);
+        keyTile.id = key; //"あ", "い", ...
       }
-
       keyTile.addEventListener("click", processKey);
+      keyTile.classList.add("key-tile");
 
-      if (key == "Enter") {
-        keyTile.classList.add("enter-key-tile");
-      } else {
-        keyTile.classList.add("key-tile");
-      }
       keyboardRow.appendChild(keyTile);
     }
     document.body.appendChild(keyboardRow);
   }
+}
+
+function processKey() {
+  let letter = this.innerText;
+  console.log(letter);
+  if (letter == "⌫") {
+    removeLetter();
+  } else if (letter == "゛" || letter == "゜") {
+    // console.log("dakuon");
+    addDakuon(letter); //TODO
+  } else {
+    addLetter(letter);
+  }
+  updateGrid();
+}
+
+function addDakuon(letter) {
+  const row = state.currentRow;
+  const prevcol = state.currentCol - 1;
+  const box = document.getElementById(`box${row}${prevcol}`);
+  if (!dakuonMap.has(box.textContent)) {
+    return;
+  }
+
+  if (letter == "゛") {
+    const dakuon = dakuonMap.get(box.textContent);
+    console.log(dakuon);
+    state.grid[row][prevcol] = dakuon;
+  } else if (letter == "゜") {
+    const handakuon = handakuonMap.get(box.textContent);
+    state.grid[row][prevcol] = handakuon;
+  }
+  updateGrid();
 }
 
 function registerKeyboardEvents() {
@@ -114,7 +189,7 @@ function registerKeyboardEvents() {
       }
     }
     if (key === "Backspace") {
-      removeLetter(); //TODO
+      removeLetter();
     }
     if (state.currentCol === 5) return;
     if (isVowel(key)) {
@@ -164,9 +239,78 @@ function isWordValid(word) {
   return dictionary.includes(word);
 }
 
+function isLetterOnKeyboard(letter) {
+  return (
+    keyboard[0].includes(letter) ||
+    keyboard[1].includes(letter) ||
+    keyboard[2].includes(letter) ||
+    keyboard[3].includes(letter) ||
+    keyboard[4].includes(letter)
+  );
+}
+
+function isDakuonFamily(letter) {
+  return (
+    zendakuon[0].includes(letter) ||
+    zendakuon[1].includes(letter) ||
+    zendakuon[2].includes(letter) ||
+    zendakuon[3].includes(letter) ||
+    zendakuon[4].includes(letter) ||
+    zendakuon[5].includes(letter) ||
+    zendakuon[6].includes(letter) ||
+    zendakuon[7].includes(letter) ||
+    zendakuon[8].includes(letter) ||
+    zendakuon[9].includes(letter) ||
+    zendakuon[10].includes(letter) ||
+    zendakuon[11].includes(letter) ||
+    zendakuon[12].includes(letter) ||
+    zendakuon[13].includes(letter) ||
+    zendakuon[14].includes(letter) ||
+    zendakuon[15].includes(letter) ||
+    zendakuon[16].includes(letter) ||
+    zendakuon[17].includes(letter) ||
+    zendakuon[18].includes(letter) ||
+    zendakuon[19].includes(letter)
+  );
+}
+
+function colorKeyboard(box, category) {
+  console.log(box.textContent + " " + category);
+
+  const row = state.currentRow;
+  const tile = document
+    .getElementById(`${box.textContent}`)
+    .classList.add(category);
+}
+
+function getVariations(letter) {
+  const variations = [];
+  if (isDakuonFamily(letter)) {
+    zendakuon.forEach((row) => {
+      if (row.includes(letter)) {
+        variations.push(row);
+      } else {
+        variations.push("none");
+      }
+    });
+  }
+  return variations;
+}
+
 function revealWord(guess) {
   const row = state.currentRow;
   const animation_duration = 500;
+
+  let variations = getVariations(state.secret);
+  // console.log(variations);
+  variations.forEach((row) => {
+    row.forEach((letter) => {
+      console.log(letter);
+    });
+  });
+
+  // dakuon and handakuon variations for the answer
+  variations.forEach((v) => console.log(v));
 
   for (let i = 0; i < 5; i++) {
     const box = document.getElementById(`box${row}${i}`);
@@ -175,10 +319,16 @@ function revealWord(guess) {
     setTimeout(() => {
       if (letter === state.secret[i]) {
         box.classList.add("right");
+        colorKeyboard(box, "right");
       } else if (state.secret.includes(letter)) {
         box.classList.add("wrong");
+        colorKeyboard(box, "wrong");
+      } else if (variations.includes(letter)) {
+        box.classList.add("close");
+        colorKeyboard(box, "close");
       } else {
         box.classList.add("empty");
+        colorKeyboard(box, "empty");
       }
     }, ((i + 1) * animation_duration) / 2);
 
@@ -275,7 +425,14 @@ function startup() {
 
   registerKeyboardEvents();
 
-  //   console.log(state.secret);
+  console.log(state.secret);
+
+  if (isDakuonFamily("あ")) {
+    console.log("あ is dakuon");
+  }
+  if (isDakuonFamily("ば")) {
+    console.log("ば is dakuon");
+  }
 }
 
 startup();

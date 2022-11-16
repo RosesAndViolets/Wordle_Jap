@@ -8,6 +8,7 @@ body {
   --empty: #3a3a3c;
   --wrong: #b59f3b;
   --right: #538d4e;
+  --close: rgb(236, 158, 13);
 }
 #game {
   display: grid;
@@ -24,13 +25,12 @@ body {
   grid-template-columns: repeat(5, auto);
 }
 
-.keyboard {
+/* .keyboard {
   display: keyboard;
-}
+} */
 
 .keyboard-row {
-  width: 400px;
-
+  width: 480px;
   margin: 0 auto;
   display: flex;
   flex-wrap: wrap;
@@ -38,6 +38,36 @@ body {
 
 .key-tile {
   width: 36px;
+  height: 40px;
+  margin: 1px;
+  border: 1px solid lightgray;
+
+  /* Text */
+  font-size: 20px;
+  font-weight: bold;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: rgba(240, 248, 255, 0.669);
+}
+.key-tile.empty {
+  background: var(--empty);
+}
+
+.key-tile.wrong {
+  background: var(--wrong);
+}
+
+.key-tile.right {
+  background: var(--right);
+}
+
+.key-tile.close {
+  background: var(--default);
+}
+
+.enter-key-tile {
+  width: 76px;
   height: 40px;
   margin: 1px;
   border: 1px solid lightgray;
@@ -73,6 +103,10 @@ body {
 
 .box.right {
   background: var(--right);
+}
+
+.box.close {
+  background: var(--default);
 }
 
 .animated {
