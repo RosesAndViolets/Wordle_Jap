@@ -13,6 +13,7 @@ const state = {
   currentRow: 0,
   currentCol: 0,
 };
+let variations = [];
 const dakuonMap = new Map([
   ["か", "が"],
   ["き", "ぎ"],
@@ -276,41 +277,32 @@ function isDakuonFamily(letter) {
 
 function colorKeyboard(box, category) {
   console.log(box.textContent + " " + category);
-
-  const row = state.currentRow;
-  const tile = document
-    .getElementById(`${box.textContent}`)
-    .classList.add(category);
+  var letter = box.textContent;
+  if (category === "right" || category === "wrong" || category === "empty") {
+    document.getElementById(`${letter}`).classList.remove("close");
+    document.getElementById(`${letter}`).classList.add(category);
+  } else if (isDakuonFamily(letter)) {
+    letter = removeDakuon(letter);
+    console.log("no dakuon" + letter + " " + category);
+    document.getElementById(`${letter}`).classList.add(category);
+  }
 }
 
 function getVariations(letter) {
-  const variations = [];
-  if (isDakuonFamily(letter)) {
-    zendakuon.forEach((row) => {
-      if (row.includes(letter)) {
-        variations.push(row);
-      } else {
-        variations.push("none");
-      }
-    });
-  }
-  return variations;
+  if (!isDakuonFamily(letter)) return "";
+  var temp = [];
+  zendakuon.forEach((row) => {
+    if (row.includes(letter)) {
+      // console.log(row);
+      temp = row;
+    }
+  });
+  return temp;
 }
 
 function revealWord(guess) {
   const row = state.currentRow;
   const animation_duration = 500;
-
-  let variations = getVariations(state.secret);
-  // console.log(variations);
-  variations.forEach((row) => {
-    row.forEach((letter) => {
-      console.log(letter);
-    });
-  });
-
-  // dakuon and handakuon variations for the answer
-  variations.forEach((v) => console.log(v));
 
   for (let i = 0; i < 5; i++) {
     const box = document.getElementById(`box${row}${i}`);
@@ -323,7 +315,8 @@ function revealWord(guess) {
       } else if (state.secret.includes(letter)) {
         box.classList.add("wrong");
         colorKeyboard(box, "wrong");
-      } else if (variations.includes(letter)) {
+      } else if (isVariation(letter)) {
+        removeDakuon(letter);
         box.classList.add("close");
         colorKeyboard(box, "close");
       } else {
@@ -363,6 +356,17 @@ function isConsonant(key) {
     return false;
   }
 }
+
+function isVariation(key) {
+  var flag = false;
+  variations.forEach((fam) => {
+    if (fam.includes(key)) {
+      console.log("checking if variation");
+      flag = true;
+    }
+  });
+  return flag;
+}
 function addLetter(letter) {
   const row = state.currentRow;
   const col = state.currentCol;
@@ -397,7 +401,16 @@ function addKey(key) {
   if (state.currentCol === 5) return;
   state.grid[state.currentRow][state.currentCol] = key;
 }
-
+function removeDakuon(key) {
+  var noDakuon;
+  variations.forEach((fam) => {
+    if (fam.includes(key)) {
+      console.log("removing dakuon");
+      noDakuon = fam[0];
+    }
+  });
+  return noDakuon;
+}
 function removeLetter() {
   // check if current box has text content
   if (
@@ -427,11 +440,11 @@ function startup() {
 
   console.log(state.secret);
 
-  if (isDakuonFamily("あ")) {
-    console.log("あ is dakuon");
-  }
-  if (isDakuonFamily("ば")) {
-    console.log("ば is dakuon");
+  for (let i = 0; i < 5; i++) {
+    if (isDakuonFamily(state.secret[i])) {
+      variations.push(getVariations(state.secret[i]));
+      console.log(variations);
+    }
   }
 }
 

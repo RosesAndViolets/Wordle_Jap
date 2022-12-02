@@ -8,7 +8,7 @@ body {
   --empty: #3a3a3c;
   --wrong: #b59f3b;
   --right: #538d4e;
-  --close: rgb(236, 158, 13);
+  --close: #ec9e0d;
 }
 #game {
   display: grid;
@@ -63,7 +63,7 @@ body {
 }
 
 .key-tile.close {
-  background: var(--default);
+  background: var(--close);
 }
 
 .enter-key-tile {
@@ -106,7 +106,7 @@ body {
 }
 
 .box.close {
-  background: var(--default);
+  background: var(--close);
 }
 
 .animated {
