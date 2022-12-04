@@ -136,7 +136,7 @@ function drawKeyboard() {
 
 function processKey() {
   let letter = this.innerText;
-  console.log(letter);
+  // console.log(letter);
   if (letter == "⌫") {
     removeLetter();
   } else if (letter == "゛" || letter == "゜") {
@@ -158,7 +158,7 @@ function addDakuon(letter) {
 
   if (letter == "゛") {
     const dakuon = dakuonMap.get(box.textContent);
-    console.log(dakuon);
+    // console.log("🚀 ~ file: index.js:161 ~ addDakuon ~ dakuon", dakuon)
     state.grid[row][prevcol] = dakuon;
   } else if (letter == "゜") {
     const handakuon = handakuonMap.get(box.textContent);
@@ -276,14 +276,32 @@ function isDakuonFamily(letter) {
 }
 
 function colorKeyboard(box, category) {
-  console.log(box.textContent + " " + category);
+  // console.log(box.textContent + " " + category);
+
   var letter = box.textContent;
-  if (category === "right" || category === "wrong" || category === "empty") {
-    document.getElementById(`${letter}`).classList.remove("close");
+  const keytile = document.getElementById(`${letter}`);
+
+  if (category === "empty") {
+    if (isDakuonFamily(letter)) {
+      letter = removeDakuon(letter);
+    }
     document.getElementById(`${letter}`).classList.add(category);
-  } else if (isDakuonFamily(letter)) {
+  } else if (category === "close" && isDakuonFamily(letter)) {
     letter = removeDakuon(letter);
-    console.log("no dakuon" + letter + " " + category);
+    document.getElementById(`${letter}`).classList.add(category);
+  } else if (category === "wrong") {
+    // if has class close, remove it
+    if (document.getElementById(`${letter}`).classList.contains("close")) {
+      document.getElementById(`${letter}`).classList.remove("close");
+    }
+    document.getElementById(`${letter}`).classList.add(category);
+  } else if (category === "right") {
+    if (document.getElementById(`${letter}`).classList.contains("close")) {
+      document.getElementById(`${letter}`).classList.remove("close");
+    }
+    if (document.getElementById(`${letter}`).classList.contains("wrong")) {
+      document.getElementById(`${letter}`).classList.remove("wrong");
+    }
     document.getElementById(`${letter}`).classList.add(category);
   }
 }
@@ -304,21 +322,41 @@ function revealWord(guess) {
   const row = state.currentRow;
   const animation_duration = 500;
 
+  // LetterCount
+  let LetterCount = {};
+  for (let i = 0; i < state.secret.length; i++) {
+    let letter = state.secret[i];
+
+    if (LetterCount[letter]) {
+      LetterCount[letter] += 1;
+    } else {
+      LetterCount[letter] = 1;
+    }
+  }
+  // console log LetterCount
+  console.log(LetterCount);
+
   for (let i = 0; i < 5; i++) {
     const box = document.getElementById(`box${row}${i}`);
     const letter = box.textContent;
 
     setTimeout(() => {
-      if (letter === state.secret[i]) {
+      if (LetterCount[letter] < 1) {
+        box.classList.add("empty");
+        colorKeyboard(box, "empty");
+      } else if (letter === state.secret[i]) {
         box.classList.add("right");
         colorKeyboard(box, "right");
+        LetterCount[letter] -= 1;
       } else if (state.secret.includes(letter)) {
         box.classList.add("wrong");
         colorKeyboard(box, "wrong");
+        LetterCount[letter] -= 1;
       } else if (isVariation(letter)) {
         removeDakuon(letter);
         box.classList.add("close");
         colorKeyboard(box, "close");
+        LetterCount[letter] -= 1;
       } else {
         box.classList.add("empty");
         colorKeyboard(box, "empty");
@@ -361,7 +399,6 @@ function isVariation(key) {
   var flag = false;
   variations.forEach((fam) => {
     if (fam.includes(key)) {
-      console.log("checking if variation");
       flag = true;
     }
   });
@@ -403,12 +440,12 @@ function addKey(key) {
 }
 function removeDakuon(key) {
   var noDakuon;
-  variations.forEach((fam) => {
+  zendakuon.forEach((fam) => {
     if (fam.includes(key)) {
-      console.log("removing dakuon");
       noDakuon = fam[0];
     }
   });
+
   return noDakuon;
 }
 function removeLetter() {
@@ -438,14 +475,14 @@ function startup() {
 
   registerKeyboardEvents();
 
-  console.log(state.secret);
+  console.log("🚀 ~ file: index.js:467 ~ startup ~ secret", state.secret);
 
-  for (let i = 0; i < 5; i++) {
-    if (isDakuonFamily(state.secret[i])) {
-      variations.push(getVariations(state.secret[i]));
-      console.log(variations);
-    }
-  }
+  // for (let i = 0; i < 5; i++) {
+  //   if (isDakuonFamily(state.secret[i])) {
+  //     variations.push(getVariations(state.secret[i]));
+  //     console.log(variations);
+  //   }
+  // }
 }
 
 startup();
